@@ -59,16 +59,16 @@
                             </div>
                             <!-- Checkbox -->
                             <div class="flex items-center justify-between">
-                                <div x-data="{ checkboxToggle: false }">
+                                <div>
                                     <label for="checkboxLabelOne"
                                         class="flex items-center text-sm font-normal text-gray-700 cursor-pointer select-none dark:text-gray-400">
                                         <div class="relative">
                                             <input type="checkbox" id="checkboxLabelOne" class="sr-only"
-                                                @change="checkboxToggle = !checkboxToggle" />
-                                            <div :class="checkboxToggle ? 'border-brand-500 bg-brand-500' :
+                                                x-model="rememberMe" />
+                                            <div :class="rememberMe ? 'border-brand-500 bg-brand-500' :
                                                 'bg-transparent border-gray-300 dark:border-gray-700'"
                                                 class="mr-3 flex h-5 w-5 items-center justify-center rounded-md border-[1.25px]">
-                                                <span :class="checkboxToggle ? '' : 'opacity-0'">
+                                                <span :class="rememberMe ? '' : 'opacity-0'">
                                                     <svg width="14" height="14" viewBox="0 0 14 14" fill="none"
                                                         xmlns="http://www.w3.org/2000/svg">
                                                         <path d="M11.6666 3.5L5.24992 9.91667L2.33325 7" stroke="white"
@@ -101,7 +101,7 @@
                                                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
                                             </path>
                                         </svg>
-                                        Signing In... 
+                                        Signing In...
                                     </span>
                                 </button>
                             </div>
@@ -136,9 +136,7 @@
                 },
 
                 get canSubmit() {
-                    return this.isEmailValid &&
-                        !this.emailError &&
-                        this.password
+                    return this.isEmailValid && this.password.length > 0;
                 },
                 validateEmail() {
                     this.emailError = '';
@@ -148,7 +146,8 @@
                 },
                 validatePassword() {
                     this.passwordError = '';
-                    if (!this.password) {
+                    // Only show error if user has started typing and field is empty
+                    if (this.password === '' && this.email) {
                         this.passwordError = 'Password is required';
                     }
                 },
@@ -160,26 +159,31 @@
                     this.passwordError = '';
 
                     try {
-                        // Simulate API call - replace with actual endpoint
-                        await new Promise(resolve => setTimeout(resolve, 1500));
-
-                        console.log('Login data:', {
+                        // Login request
+                        const response = await axios.post('/login', {
                             email: this.email,
                             password: this.password,
-                            rememberMe: this.rememberMe,
+                            remember: this.rememberMe,
                         });
 
-                        // Show success notification
-                        notyf.success('Login successful! Welcome back.');
+                        // Check for success response
+                        if (response.status === 200) {
+                            // Show success notification
+                            notyf.success(response.data.message || 'Login successful!');
 
-                        // Redirect after short delay
-                        setTimeout(() => {
-                            // window.location.href = '/dashboard';
-                        }, 1000);
+                            // Redirect after short delay
+                            setTimeout(() => {
+                                location.href = response.data.redirect || '/dashboard';
+                            }, 1000);
+                        } else {
+                            throw new Error('Invalid response format');
+                        }
 
                     } catch (error) {
+                        // Handle error response
+                        let errorMessage = error.response.data.message || 'An error occurred during login. Please try again.';
                         // Show error notification
-                        notyf.error('Invalid email or password. Please try again.');
+                        notyf.error(errorMessage);
                         console.error('Login error:', error);
                     } finally {
                         this.isSubmitting = false;
