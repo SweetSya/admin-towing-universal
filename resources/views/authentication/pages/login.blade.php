@@ -101,7 +101,7 @@
                                                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
                                             </path>
                                         </svg>
-                                        Signing In...
+                                        Signing In... 
                                     </span>
                                 </button>
                             </div>
@@ -157,26 +157,30 @@
 
                     this.isSubmitting = true;
                     this.emailError = '';
+                    this.passwordError = '';
 
                     try {
                         // Simulate API call - replace with actual endpoint
                         await new Promise(resolve => setTimeout(resolve, 1500));
 
-                        console.log('Verifying code:', {
+                        console.log('Login data:', {
                             email: this.email,
                             password: this.password,
                             rememberMe: this.rememberMe,
                         });
 
-                        // Clear cooldown on successful verification
-                        this.clearCooldown();
+                        // Show success notification
+                        notyf.success('Login successful! Welcome back.');
 
-                        // Redirect or show success message
-                        // window.location.href = '/reset-password';
+                        // Redirect after short delay
+                        setTimeout(() => {
+                            // window.location.href = '/dashboard';
+                        }, 1000);
 
                     } catch (error) {
-                        this.codeError = 'Something went wrong. Please try again.';
-                        console.error('Error Login:', error);
+                        // Show error notification
+                        notyf.error('Invalid email or password. Please try again.');
+                        console.error('Login error:', error);
                     } finally {
                         this.isSubmitting = false;
                     }

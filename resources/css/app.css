@@ -1,5 +1,7 @@
-@import 'tailwindcss';
 @import url("https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap");
+@import 'tailwindcss';
+@import 'notyf/notyf.min.css';
+@import 'bootstrap-icons/font/bootstrap-icons.min.css';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
